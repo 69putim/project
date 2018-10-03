@@ -1,11 +1,12 @@
-import os
-from typing import Any, Union
+import os 
 import random
 import numpy as np
 import pandas as pd
 import librosa
 import librosa.display
 import matplotlib.pyplot as plt
+from sklearn import model_selection
+
 
 #ディレクトリを定義
 base_dir = "./"
@@ -52,11 +53,11 @@ def show_melsp(melsp, fs):
     plt.show()
 
 #サンプル
-x, fs = load_wave_data(audio_dir, meta_data.loc[100, "filename"])
-melsp = calculate_melsp(x)
-print("wave size:{0}\nmelsp size:{1}\nsamping rate:{2}".format(x.shape, melsp.shape, fs))
-show_wav(x)
-show_melsp(melsp, fs)
+#x, fs = load_wave_data(audio_dir, meta_data.loc[100, "filename"])
+#melsp = calculate_melsp(x)
+#print("wave size:{0}\nmelsp size:{1}\nsamping rate:{2}".format(x.shape, melsp.shape, fs))
+#show_wav(x)
+#show_melsp(melsp, fs)
 
 #Augmentation(ホワイトノイズ)
 def add_white_noice(x, rate=0.002):
@@ -75,5 +76,16 @@ def strech_sound(x, rate=1.1):
 def shift_sound(x, rate=2):
     return np.roll(x, int(len(x)//rate))
 
+#学習データとテストデータの作成
+x = list(meta_data.loc[:,"filename"])
+y = list(meta_data.loc[:,"target"])
 
+x_train, x_test, y_train, y_test = model_selection.train_test_split(x, y, test_size=0.25, stratify=y)
+print("x_train:{0}\ny train:{1}\nx test:{2}\ny test:{3}".format(len(x_train), len(y_train), len(x_test), len(y_test)))
+
+#各クラスが均等に分割されているかを確認
+a = np.zeros(50)
+for c in y_test:
+    a[c] += 1
+print(a)
 
