@@ -45,14 +45,14 @@ def show_wav(x):
     plt.plot(x)
     plt.show()
 
-#wavのヒートマップを表示
+#メルケプストラムを表示
 def show_melsp(melsp, fs):
     librosa.display.specshow(melsp, sr=fs, x_axis="time", y_axis="mel", hop_length=128)
     plt.colorbar(format='%+2.0f db')
     plt.show()
 
-#サンプルデータ
-x, fs = load_wave_data(audio_dir, meta_data.loc[5, "filename"])
+#サンプル
+x, fs = load_wave_data(audio_dir, meta_data.loc[100, "filename"])
 melsp = calculate_melsp(x)
 print("wave size:{0}\nmelsp size:{1}\nsamping rate:{2}".format(x.shape, melsp.shape, fs))
 show_wav(x)
