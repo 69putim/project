@@ -60,11 +60,11 @@ def show_melsp(melsp, fs):
 #show_melsp(melsp, fs)
 
 #Augmentation(ホワイトノイズ)
-def add_white_noice(x, rate=0.002):
+def add_white_noise(x, rate=0.002):
     return x + rate*np.random.randn(len(x))
 
 #Augmentation(ストレッチ)
-def strech_sound(x, rate=1.1):
+def stretch_sound(x, rate=1.1):
     input_length = len(x)
     x = librosa.effects.time_stretch(x, rate)
     if len(x)>input_length:
@@ -88,4 +88,64 @@ a = np.zeros(50)
 for c in y_test:
     a[c] += 1
 print(a)
+
+#作成した学習データの保存
+
+freq = 128 #周波数
+time = 1723
+
+#augmentationと一緒にnpz形式で学習用データを保存
+def save_np_data(filename, x, y, aug=None, rates=None):
+    np_data = np.zeros(freq*time*len(x)).reshape(len(x), freq, time)
+    np_targets = np.zeros(len(y))
+    for i in range(len(y)):
+        _x, fs = load_wave_data(audio_dir, x[i])
+        if aug is not None:
+            _x = aug(x = _x, rate=rates[i])
+        _x = calculate_melsp(_x)
+        np_data[i] = _x
+        np_targets[i] = y[i]
+    np.savez(filename, x=np_data, y=np_targets)
+
+#テスト用データセットを保存
+if not os.path.exists("esc_melsp_test.npz"):
+    save_np_data("esc_melsp_test.npz", x_test, y_test)
+
+#学習用データセットを保存
+if not os.path.exists("esc_melsp_train_raw.npz"):
+    save_np_data("esc_melsp_train_raw.npz", x_train, y_train)
+
+#ホワイトノイズが入った学習用データセット
+if not os.path.exists("esc_melsp_train_wn.npz"):
+    rates = np.random.randint(1, 50, len(x_train))/10000
+    save_np_data("esc_melsp_train_wn.npz", x_train, y_train, aug = add_white_noise, rates = rates)
+
+#ストレッチされた学習用データセット
+if not os.path.exists("esc_melsp_tarin_st.npz"):
+    rates = np.random.choice(np.arange(80, 120), len(y_train))/100
+    save_np_data("esc_melsp_train_st.npz", x_train, y_train, aug = stretch_sound, rates = rates)
+
+#シフトされた学習用データセット
+if not os.path.exists("esc_melsp_train_ss.npz"):
+    rates = np.random.choice(np.arange(2, 6), len(y_train))
+    save_np_data("esc_melsp_train_ss.npz", x_train, y_train, aug = shift_sound, rates = rates)
+
+#ホワイトノイズ、ストレッチ、シフトがランダムに組み合わされた学習用データセット
+if not os.path.exists("esc_melsp_train_comb.npz"):
+    np_data = np.zeros(freq*time*len(x_train)).reshape(len(x_train), freq, time)
+    np_targets = np.zeros(len(y_train))
+    for i in range(len(y_train)):
+        x, fs = load_wave_data(audio_dir, x_train[i])
+        x = add_white_noise(x = x, rate = np.random.randint(1, 50)/1000)
+        if np.random.choice((True, False)):
+            x = stretch_sound(x = x, rate = np.random.choice(np.arange(80, 120))/100)
+        else:
+            x = shift_sound(x = x, rate = np.random.choice(np.arange(2, 6)))
+        x = calculate_melsp(x)
+        np_data[i] = x
+        np_targets[i] = y_train[i]
+    np.savez("esc_melsp_train_comb.npz", x = np_data, y = np_targets)
+
+
+
 
