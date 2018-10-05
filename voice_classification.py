@@ -242,6 +242,7 @@ x = Dense(classes)(x)
 x = Activation("softmax")(x)
 
 model = Model(inputs, x)
+model.summary()
 
 #adam optimizerを起動
 opt = keras.optimizers.adam(lr=0.00001, decay=1e-6, amsgrad=True)
