@@ -1,7 +1,7 @@
 ###
 change_wav_data.pyは
 
- XXXX
+XXXX
  
   |
   
@@ -29,7 +29,7 @@ change_wav_data.pyは
   
   |
   
-  |-change_wav_data.wav
+  |-change_wav_data.py
   
   
   こんな感じで使ってね
