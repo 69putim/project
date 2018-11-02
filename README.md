@@ -32,4 +32,4 @@ XXXX
   |-change_wav_data.py
   
   
-  こんな感じで使ってね
+  こんな形で使ってね
